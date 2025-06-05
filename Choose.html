@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Word Generator</title>
+    <style>
+        /* Base font size for the root element (important for rem units) */
+        html {
+            font-size: 16px; /* Defines what 1rem is. You can adjust this base if needed. */
+        }
+
+        /* Dark Theme Default Styling - Using rem/em/%, not px */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* viewport height */
+            background-color: #282c34; /* Dark background */
+            margin: 0;
+            color: #e0e0e0; /* Light text color */
+        }
+
+        .container {
+            background-color: #3a404c; /* Slightly lighter dark container */
+            padding: 1.875rem 2.5rem; /* 30px / 16px = 1.875rem, 40px / 16px = 2.5rem */
+            border-radius: 0.75rem; /* 12px / 16px = 0.75rem */
+            box-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.2); /* 10px / 16px, 25px / 16px */
+            text-align: center;
+            width: 90%; /* Responsive width */
+            max-width: 31.25rem; /* 500px / 16px = 31.25rem */
+            border: 0.0625rem solid #555; /* 1px / 16px */
+        }
+
+        h1 {
+            color: #61dafb; /* Accent color for heading */
+            margin-bottom: 1.875rem; /* 30px / 16px */
+            font-size: 2.2em; /* Relative to parent's font-size (which is body's) */
+        }
+
+        .input-section {
+            margin-bottom: 1.5625rem; /* 25px / 16px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.9375rem; /* 15px / 16px */
+            font-size: 1.1em; /* Relative to parent's font-size */
+        }
+
+        /* Buttons have a more modern, flat design with hover effects */
+        .button {
+            background-color: #4CAF50; /* Green for primary actions */
+            color: white;
+            padding: 0.75rem 1.5625rem; /* 12px / 16px, 25px / 16px */
+            border: none;
+            border-radius: 0.5rem; /* 8px / 16px */
+            cursor: pointer;
+            font-size: 1.05em; /* Relative to its own calculated font-size */
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1); /* 4px / 16px, 6px / 16px */
+        }
+
+        .button:hover {
+            background-color: #45a049;
+            transform: translateY(-0.125rem); /* 2px / 16px */
+            box-shadow: 0 0.375rem 0.625rem rgba(0, 0, 0, 0.15); /* 6px / 16px, 10px / 16px */
+        }
+
+        .button:active {
+            transform: translateY(0);
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1); /* 2px / 16px, 4px / 16px */
+        }
+
+        .button:disabled {
+            background-color: #555; /* Darker disabled color */
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #fileName {
+            font-size: 0.9em;
+            color: #bbb; /* Lighter grey for file name */
+            white-space: nowrap;
+            max-width: 9.375rem; /* 150px / 16px */
+        }
+
+        .file-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+        .file-buttons .button {
+            padding: 0.4rem 1rem;
+            font-size: 0.95em;
+            background-color: #555;
+            color: #fff;
+        }
+        .file-buttons .button:hover {
+            background-color: #777;
+        }
+
+        .display-section {
+            background-color: #444b56; /* Darker display background */
+            border: 0.0625rem solid #666; /* 1px / 16px */
+            border-radius: 0.5rem; /* 8px / 16px */
+            padding: 1.25rem; /* 20px / 16px */
+            margin: 1.5625rem 0; /* 25px / 16px */
+            min-height: 5rem; /* 80px / 16px */
+            max-height: 12.5rem; /* 200px / 16px */
+            overflow-y: auto; /* Make it scrollable vertically */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align content to the top */
+            align-items: center;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Preserve newlines */
+            box-shadow: inset 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2); /* Inner shadow for depth */
+            text-align: center; /* Center the words within the scrollable div */
+        }
+
+        #wordDisplay {
+            font-size: 1.6em; /* Relative to its parent's font size (which is the display-section's) */
+            font-weight: bold;
+            color: #61dafb; /* Accent color for words */
+            margin-bottom: 0; /* Remove bottom margin here, handled by padding of parent */
+            line-height: 1.4; /* Improve readability for multiple words */
+            width: 100%; /* Ensure it takes full width of its container */
+        }
+
+        #copyBtn {
+            background-color: #007bff; /* Blue for copy button */
+            margin-top: 0.9375rem; /* 15px / 16px */
+        }
+
+        #copyBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #getRandomWordsBtn {
+            background-color: #ffc107; /* Yellow/Orange for random button */
+            color: #333; /* Darker text for contrast on yellow */
+            margin-top: 0.9375rem; /* 15px / 16px */
+        }
+
+        #getRandomWordsBtn:hover {
+            background-color: #e0a800;
+        }
+
+        /* Scrollbar styling for Webkit browsers (Chrome, Safari) */
+        .display-section::-webkit-scrollbar {
+            width: 0.5rem; /* 8px / 16px */
+        }
+
+        .display-section::-webkit-scrollbar-track {
+            background: #555; /* Darker track */
+            border-radius: 0.625rem; /* 10px / 16px */
+        }
+
+        .display-section::-webkit-scrollbar-thumb {
+            background: #888; /* Grey thumb */
+            border-radius: 0.625rem; /* 10px / 16px */
+        }
+
+        .display-section::-webkit-scrollbar-thumb:hover {
+            background: #aaa; /* Lighter grey on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Random Word Generator</h1>
+
+        <div class="input-section">
+            <span id="fileName">Loading words...</span>
+        </div>
+
+        <div class="display-section">
+            <div id="wordDisplay">
+                Loading words...
+            </div>
+        </div>
+        
+        <button id="copyBtn" class="button" disabled>Copy Word(s)</button>
+        <button id="getRandomWordsBtn" class="button" disabled>Get Random Word(s)</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileNameSpan = document.getElementById('fileName');
+            const getRandomWordsBtn = document.getElementById('getRandomWordsBtn');
+            const wordDisplay = document.getElementById('wordDisplay');
+            const copyBtn = document.getElementById('copyBtn');
+
+            let words = [];
+            const filePath = 'words.txt'; // The relative path to your file
+
+            // Function to load words using fetch
+            const loadWordsFromFile = async () => {
+                try {
+                    fileNameSpan.textContent = `Fetching ${filePath}...`;
+                    const response = await fetch(filePath);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const text = await response.text();
+                    words = text.split(/\r?\n/).filter(word => word.trim() !== ''); // Split by newlines and filter empty strings
+
+                    if (words.length > 0) {
+                        wordDisplay.textContent = `Loaded.`;
+                        getRandomWordsBtn.disabled = false;
+                        copyBtn.disabled = true; // Disable copy until a word is displayed
+                    } else {
+                        wordDisplay.textContent = 'Failed';
+                        getRandomWordsBtn.disabled = true;
+                        copyBtn.disabled = true;
+                    }
+                    fileNameSpan.textContent = `${words.length} Words available.`;
+                } catch (error) {
+                    console.error('Error loading file:', error);
+                    wordDisplay.textContent = `Error loading ${filePath}: ${error.message}`;
+                    fileNameSpan.textContent = `Error with ${filePath}`;
+                    getRandomWordsBtn.disabled = true;
+                    copyBtn.disabled = true;
+                }
+            };
+
+            // Auto-load the file when the page loads
+            loadWordsFromFile();
+
+            // Display random word(s)
+            getRandomWordsBtn.addEventListener('click', () => {
+                if (words.length === 0) {
+                    wordDisplay.textContent = 'Failed.';
+                    return;
+                }
+
+                let numWords = prompt("How many words?");
+                numWords = parseInt(numWords, 10);
+
+                if (isNaN(numWords) || numWords <= 0) {
+                    wordDisplay.textContent = 'Please enter a valid number of words.';
+                    copyBtn.disabled = true;
+                    return;
+                }
+
+                if (numWords > words.length) {
+                    numWords = words.length; // Don't try to get more words than available
+                    alert(`You asked for more words than available. Displaying all ${words.length} words.`);
+                }
+
+                const selectedWords = [];
+                // Create a shallow copy to pick unique words
+                const tempWords = [...words];
+
+                for (let i = 0; i < numWords; i++) {
+                    if (tempWords.length === 0) {
+                        break; // Stop if no more unique words can be picked
+                    }
+                    const randomIndex = Math.floor(Math.random() * tempWords.length);
+                    selectedWords.push(tempWords[randomIndex]);
+                    tempWords.splice(randomIndex, 1); // Remove the selected word to ensure uniqueness
+                }
+
+                // Join with newlines for display
+                const wordsToDisplay = selectedWords.join('\n');
+                wordDisplay.textContent = wordsToDisplay;
+                copyBtn.disabled = false;
+
+                // Scroll to top of the word display if it overflows
+                wordDisplay.parentElement.scrollTop = 0;
+            });
+
+            // Copy word(s) to clipboard
+            copyBtn.addEventListener('click', () => {
+                // Check if there's actual content to copy, not just default messages
+                if (wordDisplay.textContent &&
+                    !wordDisplay.textContent.includes("Loading words") &&
+                    !wordDisplay.textContent.includes("No words loaded.") &&
+                    !wordDisplay.textContent.includes("File loaded! 0 words found.") &&
+                    !wordDisplay.textContent.includes("No words found in filtered.txt.") &&
+                    !wordDisplay.textContent.includes("Error loading filtered.txt") &&
+                    !wordDisplay.textContent.includes("Please enter a valid number of words.")) {
+
+                    navigator.clipboard.writeText(wordDisplay.textContent)
+                        .then(() => {
+                            alert('Word(s) copied to clipboard!');
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                            alert('Failed to copy word(s). Please try again.');
+                        });
+                } else {
+                    alert('No word(s) to copy!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
